@@ -67,3 +67,41 @@ mean(glm.pred!=Direction.2005)
 lda.fit=lda(Direction~Lag1+Lag2,data=Smarket,subset=train)
 lda.fit
 plot(lda.fit)
+lda.pred=predict(lda.fit, Smarket.2005)
+names(lda.pred)
+
+lda.class=lda.pred$class
+table(lda.class,Direction.2005)
+mean(lda.class==Direction.2005)
+
+#Apply 50% threshold to posterior probabilities
+sum(lda.pred$posterior[,1]>=.5)
+sum(lda.pred$posterior[,1]<.5)
+lda.pred$posterior[1:20,1]
+lda.class[1:20]
+#Fit Quadratic Discriminant Analysis
+qda.fit=qda(Direction~Lag1+Lag2,data=Smarket,subset=train)
+qda.fit
+qda.class=predict(qda.fit,Smarket.2005)$class
+table(qda.class,Direction.2005)
+mean(qda.class==Direction.2005)
+#Quadratic Discriminant Analysis is able to predict around 60% of the time
+#however, larger testing data needs to be used to further evaluate
+#quadratic discriminant analysis's performance in predicting stock movement
+
+#K-Nearest Neighbors approach
+library(class)
+train.X=cbind(Lag1,Lag2)[train,]
+test.X=cbind(Lag1,Lag2)[!train,]
+train.Direction=Direction[train]
+set.seed(1)
+
+#Predict using k = 1 for knn
+knn.pred=knn(train.X,test.X,train.Direction,k=1)
+table(knn.pred,Direction.2005)
+mean(knn.pred == Direction.2005)
+
+#Predict using k=3 for knn
+knn.pred=knn(train.X,test.X,train.Direction,k=3)
+table(knn.pred,Direction.2005)
+mean(knn.pred ==Direction.2005)
